@@ -1,305 +1,167 @@
 # AllTalk
 
-**Push-to-talk dictation for macOS, where your voice never leaves your machine.**
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+![Platform: macOS 13+](https://img.shields.io/badge/Platform-macOS%2013%2B-lightgrey.svg)
+![Swift 5](https://img.shields.io/badge/Swift-5-F05138.svg?logo=swift&logoColor=white)
+![Go 1.22](https://img.shields.io/badge/Go-1.22-00ADD8.svg?logo=go&logoColor=white)
 
-Hold **⌃⌥Space**, talk, let go. AllTalk transcribes what you said using a speech model
-running on *your own GPU* and pastes the text wherever your cursor is. No cloud, no
-account, no API key.
+Push-to-talk dictation for macOS that runs entirely on your own machine. Hold a hotkey,
+speak, release. The transcript is typed at your cursor. No cloud, no account, no API key.
 
-> ### 🎹 What is ⌃⌥Space?
-> It's the keyboard shortcut you hold to dictate. Those symbols are how macOS writes
-> modifier keys, and **⌃⌥Space means three keys pressed together:**
->
-> | Glyph | Key |
-> |:---:|---|
-> | **⌃** | **Control** |
-> | **⌥** | **Option** (labelled `alt` on some keyboards) |
-> | **Space** | the **spacebar** |
->
-> So **⌃⌥Space = Control + Option + Spacebar, held at the same time.**
-> (For reference, the other macOS modifier glyphs are ⌘ Command and ⇧ Shift.)
-> Everywhere you see **⌃⌥Space** below, it means exactly those three keys at once.
+## Why
 
----
+Speech-to-text is now good enough to run locally. A modern Mac has the hardware to
+transcribe your voice in real time with a model like Voxtral. So the premise is simple:
+if your own machine can do the work, your voice shouldn't have to leave it.
 
-## Why AllTalk exists
+Cloud dictation streams your audio to a data centre, transcribes it there, and sends text
+back. In exchange you get a privacy policy and a promise — not proof. Once your voice
+leaves your machine you are trusting that it isn't logged, retained, handed over, or used
+to train the next model, and you cannot verify any of it.
 
-Speech-to-text got good enough to run at home. A modern Mac has the hardware to
-transcribe your voice locally, in real time, with a model like Voxtral. So here's the
-question that started this project: **if your own hardware can do the work, why send
-your voice to someone else's computer to do it?**
-
-Every cloud dictation service works the same way — it streams your audio to a data
-centre, runs the model there, and sends text back. In return you get a privacy policy
-and a promise. You don't get proof. Once your voice leaves your machine you're trusting
-that it isn't logged, retained "to improve our services," handed over on request,
-leaked in a breach, or quietly used to train the next model. I'm skeptical that none of
-that ever happens — and skepticism isn't paranoia when you genuinely *cannot verify it*.
-
-AllTalk is the other answer:
+AllTalk keeps the whole loop local:
 
 ```
-  Cloud dictation:
-    your voice ─▶ the internet ─▶ someone's data centre ─▶ text
-    (their servers, their logs, their retention policy, your trust)
-
-  AllTalk:
-    your voice ─▶ your own GPU ─▶ text
-    (nothing ever leaves your machine)
+cloud dictation   your voice ──▶ the internet ──▶ someone's servers ──▶ text
+AllTalk           your voice ──▶ your own GPU ──▶ text
 ```
 
-This is what **self-sovereignty** looks like in practice: you own the hardware, you own
-the model, you own the data — and the data stays put. The *only* time AllTalk touches
-the internet is a one-time model download on first run. After that, pull the ethernet
-cable and it still works.
-
----
+The only time AllTalk touches the network is a one-time model download on first setup.
+After that it works offline.
 
 ## How it works
 
-Three small pieces, all running locally on your Mac:
+Three local components:
 
 ```
    you speak  ──  hold ⌃⌥Space, then release
        │
        ▼
-   AllTalk.app    ·  Swift menu-bar app
-   └─ records your voice to a temporary .wav file
-       │
-       │  spawns the CLI and reads its output as it streams
+   AllTalk.app    Swift menu-bar app
+   └─ records your voice to a temporary .wav
+       │  spawns the CLI, reads its output as it streams
        ▼
-   alltalk        ·  Go CLI — ~250 lines, no dependencies
-   └─ POST /v1/chat/completions   (stream = true)
-       │
-       │  plain HTTP — on localhost, never the internet
+   alltalk        Go CLI, ~250 lines, no dependencies
+   └─ POST /v1/chat/completions  (stream = true)
+       │  plain HTTP on localhost
        ▼
-   llama-server   ·  llama.cpp, port 8899
-   └─ Voxtral-Mini-3B speech model, running on YOUR GPU
+   llama-server   llama.cpp, port 8899
+   └─ Voxtral-Mini-3B, running on your GPU
        │
        ▼
-   text  ·  pasted at your cursor, or shown in a popover
-   ─────────────────────────────────────────────────────────
-   ▲ all three stages live on your machine. the audio is
-     handed off as a localhost HTTP request — it never goes
-     out to the internet.
+   text  ──  pasted at your cursor, or shown in a popover
 ```
 
-- **`AllTalk.app`** — the menu-bar app you interact with. Owns the hotkey, records the
-  mic, and shows the result.
-- **`alltalk`** — a tiny Go command-line tool. It's the bridge: it takes a WAV file,
-  sends it to the model, and streams the transcript back word by word. It has no
-  external dependencies and works fine on its own from a terminal.
-- **`llama-server`** — [llama.cpp](https://github.com/ggml-org/llama.cpp)'s built-in
-  server, running the Voxtral speech model on your hardware.
+- **`AllTalk.app`** owns the hotkey, records the mic, manages the model server, and shows
+  the result. Records at 16 kHz mono via AVFoundation; uses a Carbon global hotkey (the
+  only macOS API for a system-wide shortcut that needs no extra permissions). Runs with the
+  App Sandbox off and hardened runtime on, because it launches a child process and
+  synthesises a ⌘V keystroke.
+- **`alltalk`** is the bridge: a small, dependency-free Go tool that sends a WAV to the
+  model and streams the transcript back word by word. It also works on its own from a shell.
+- **`llama-server`** is [llama.cpp](https://github.com/ggml-org/llama.cpp)'s server, running
+  the Voxtral speech model. AllTalk starts and stops it for you (see [Using it](#using-it)).
 
-Under the hood, the app uses a Carbon global hotkey (the only macOS API for a
-system-wide shortcut that doesn't need extra permissions), records at **16 kHz mono**
-via AVFoundation, spawns the `alltalk` binary, and reads its stdout live. It runs with
-the **sandbox off and hardened runtime on** — required because it launches a child
-process and synthesises a ⌘V keystroke, neither of which the App Sandbox allows.
+## Install
 
----
+Download the latest signed build from the [Releases page](https://github.com/greenstevester/alltalk/releases),
+move `AllTalk.app` to `/Applications`, and open it.
 
-## Quick start
+> The first notarized release is still in progress. Until it ships, build from source below.
 
-**Hands-on time: under 5 minutes.** The only slow part is a one-time ~3.2 GB model
-download — it streams in the background while you do the rest, so the actual typing is
-a handful of commands.
+## Build from source
 
-**1 · Install the model server + download the model** (needs [Homebrew](https://brew.sh)):
+Requirements: a Mac (Apple Silicon recommended), Xcode, Go, and [Homebrew](https://brew.sh).
+
+**1. Install the model server and download the model.**
 
 ```bash
-brew install llama.cpp   # provides `llama-server` — AllTalk launches & stops it for you
+brew install llama.cpp   # provides llama-server; AllTalk launches and stops it for you
 
-# download the model + audio projector into a folder you control (~3.2 GB, one-time)
 mkdir -p ~/dev/huggingface/models && cd ~/dev/huggingface/models
 base=https://huggingface.co/ggml-org/Voxtral-Mini-3B-2507-GGUF/resolve/main
-curl -L -O $base/Voxtral-Mini-3B-2507-Q4_K_M.gguf        # 2.47 GB — model
-curl -L -O $base/mmproj-Voxtral-Mini-3B-2507-Q8_0.gguf   # 716 MB — audio projector
+curl -L -O $base/Voxtral-Mini-3B-2507-Q4_K_M.gguf        # 2.47 GB, model
+curl -L -O $base/mmproj-Voxtral-Mini-3B-2507-Q8_0.gguf   # 716 MB, audio projector
 ```
 
-You don't start `llama-server` yourself — **AllTalk launches it on your first dictation
-and shuts it down when you quit.** (If your paths differ from the defaults above, set
-them in Settings → Model Server.)
+Both files are required — the model and its audio projector (`mmproj`). Without the
+projector, `llama-server` starts but cannot process audio. If you put them somewhere other
+than `~/dev/huggingface/models`, set the path in the app's Settings.
 
-**2 · Build the CLI bridge** (new terminal):
+**2. Build and install the CLI.**
 
 ```bash
 cd cli && go build -o alltalk . && sudo install alltalk /usr/local/bin/
 ```
 
-**3 · Run the app:**
+**3. Build the app.**
 
 ```bash
-open AllTalk.xcodeproj                # then press ⌘R in Xcode
+open AllTalk.xcodeproj   # then ⌘R
 ```
 
-Grant **Microphone** when macOS asks. Then click the menu-bar waveform icon (or just
-press **⌃⌥Space** — Control + Option + Spacebar together), talk, and press ⌃⌥Space again
-to stop — the transcript streams in.
+If Xcode complains about signing, set your Team under Signing & Capabilities, or switch the
+certificate to "Sign to Run Locally."
 
-For *Paste at cursor* mode you'll also grant Accessibility once (see
-[First-run gotchas](#first-run-gotchas)). For manual model download, prebuilt binaries,
-or pointing at a model server on another machine, read on.
+<details>
+<summary>Other ways to get the model</summary>
 
----
+`llama-server` can fetch the model itself with `-hf ggml-org/Voxtral-Mini-3B-2507-GGUF`,
+but it caches the files in `~/.cache/huggingface/hub` rather than a folder you chose. Set
+`LLAMA_CACHE=/your/path` to redirect that cache (note: some builds
+[ignore it](https://github.com/ggml-org/llama.cpp/issues/18684), in which case use the
+explicit download above).
 
-## Setup
-
-The quick start above is the fast path; this section is the annotated version — what
-each piece does and the options behind it.
-
-You'll need a Mac (Apple Silicon strongly recommended for decent speed), Xcode, and Go.
-
-### 1. Run the model server
-
-**Get `llama-server`** — it ships as part of llama.cpp:
-
-```bash
-brew install llama.cpp        # macOS / Linux
-llama-server --version        # verify it's installed
-```
-
-(Or grab a prebuilt binary or Docker image from the
-[llama.cpp releases](https://github.com/ggml-org/llama.cpp/releases).)
-
-**Get the model.** The GGUF repo contains *two* files you need — the model **and** its
-audio projector (`mmproj`). Without the projector, `llama-server` starts up fine but
-silently can't process audio (it'll look like AllTalk connects but never replies).
-
-The recommended way is to **download both files into a folder you control** — so you
-know exactly where the ~3.2 GB of weights live, and can move or delete them deliberately:
-
-```bash
-mkdir -p ~/dev/huggingface/models && cd ~/dev/huggingface/models
-base=https://huggingface.co/ggml-org/Voxtral-Mini-3B-2507-GGUF/resolve/main
-curl -L -O $base/Voxtral-Mini-3B-2507-Q4_K_M.gguf        # 2.47 GB — the model
-curl -L -O $base/mmproj-Voxtral-Mini-3B-2507-Q8_0.gguf   # 716 MB — audio projector
-
-llama-server \
-  -m       ~/dev/huggingface/models/Voxtral-Mini-3B-2507-Q4_K_M.gguf \
-  --mmproj ~/dev/huggingface/models/mmproj-Voxtral-Mini-3B-2507-Q8_0.gguf \
-  --port 8899
-```
-
-**Prefer the one-liner?** `llama-server` can fetch both itself:
-
-```bash
-llama-server -hf ggml-org/Voxtral-Mini-3B-2507-GGUF --port 8899
-```
-
-…but it tucks them into a cache (`~/.cache/huggingface/hub` on current builds), not a
-folder you chose. To put that cache where you want, set `LLAMA_CACHE` first:
-
-```bash
-export LLAMA_CACHE=~/dev/huggingface/models
-llama-server -hf ggml-org/Voxtral-Mini-3B-2507-GGUF --port 8899
-```
-
-(Note: some builds [ignore `LLAMA_CACHE`](https://github.com/ggml-org/llama.cpp/issues/18684) —
-if yours does, use the explicit download above, which always works.)
-
-> **Why not Ollama?** Ollama can't feed audio into a model yet (open requests
-> [#12440](https://github.com/ollama/ollama/issues/12440) and
-> [#11432](https://github.com/ollama/ollama/issues/11432)), and its API doesn't accept
-> the `input_audio` payload AllTalk sends. So it can't run Voxtral for transcription —
-> use `llama-server`.
-
-### 2. Build the command-line tool
-
-```bash
-cd cli
-go build -o alltalk .
-sudo install alltalk /usr/local/bin/
-```
-
-Stdlib only — no external dependencies. Quick sanity check against the running server:
-
-```bash
-alltalk -f some.wav -p "Summarise this"   # transcribe/answer for an existing file
-alltalk                                   # record from the mic, then transcribe
-```
-
-### 3. Build the macOS app
-
-```bash
-open AllTalk.xcodeproj   # then hit ⌘R
-```
-
-The app appears in the menu bar — the waveform icon (no Dock icon, by design). See
-[First-run gotchas](#first-run-gotchas) below for the permission prompts and an Xcode
-signing tip.
-
----
-
-## First-run gotchas
-
-- **Microphone** — macOS prompts the first time you press ⌃⌥Space. Grant it.
-- **Accessibility** — *Paste at Cursor* mode synthesises a ⌘V keystroke, which macOS
-  blocks until you allow it under System Settings → Privacy & Security → Accessibility.
-  Expect a nag the first time the app tries to paste.
-- **Xcode signing** — if Xcode complains about code signing, set your **Team** in the
-  target's Signing & Capabilities tab, or switch the certificate to *"Sign to Run
-  Locally."*
-
----
+Ollama is not an option: it cannot feed audio into a model
+([open requests](https://github.com/ollama/ollama/issues/12440)), so it cannot run Voxtral
+for transcription.
+</details>
 
 ## Using it
 
-- **⌃⌥Space** (hold **Control + Option + Spacebar** together) — start recording; press
-  again to stop. Stopping kicks off transcription
-  and the reply streams back in real time.
-- **Two output modes** — toggle from the menu or the popover:
-  - **Paste at cursor** — pastes each word as it streams, so it feels like live
-    dictation straight into whatever app you're in.
-  - **Show in popover** — accumulates the full transcript in a scrollable SwiftUI view
-    and posts a notification when it's done.
-- **The model server is automatic** — AllTalk starts `llama-server` on your first
-  ⌃⌥Space (the menu status goes `◐ Starting…` → `● Ready`), reuses it for the session,
-  and stops it when you quit. The menu's **Stop / Start Model Server** item gives manual
-  control; a server you started yourself is adopted and left running on quit.
-- **Menu bar → Show Transcript…** — open the popover any time to see the latest text.
-- **Menu bar → Settings…** — server URL, prompt, the `alltalk` CLI path, and the
-  llama-server binary + model-folder paths.
+The hotkey is **⌃⌥Space** — hold Control, Option, and the spacebar together:
 
----
+| Glyph | Key |
+|:-----:|-----|
+| ⌃ | Control |
+| ⌥ | Option (`alt` on some keyboards) |
+| Space | spacebar |
+
+- **Record.** Press ⌃⌥Space to start, press again to stop. Transcription begins on stop and
+  streams back in real time.
+- **Two output modes**, switchable from the menu or popover:
+  - *Paste at cursor* types each word as it arrives, for live dictation into any app.
+  - *Show in popover* collects the full transcript in a scrollable view and notifies when done.
+- **The model server is automatic.** AllTalk starts `llama-server` on your first ⌃⌥Space
+  (the menu shows `Starting…` then `Ready`), keeps it for the session, and stops it on quit.
+  The menu's *Stop / Start Model Server* item gives manual control; a server you started
+  yourself is reused and left running.
+- **Settings** holds the server URL, prompt, CLI path, and the llama-server and model paths.
+
+On first launch macOS asks for **Microphone** access. *Paste at cursor* mode also needs
+**Accessibility** (System Settings → Privacy & Security → Accessibility) to synthesise ⌘V.
 
 ## Customizing
 
-- **Different hotkey** — edit the `kVK_Space` / `controlKey | optionKey` line in
-  `AppDelegate.swift`. Carbon key codes live in `Carbon.HIToolbox`.
-- **Translation or Q&A instead of plain dictation** — change the prompt in Settings.
-  Voxtral understands audio natively, so e.g. `"Answer the question asked in this audio
-  clip."` or `"Translate this to French."` both work.
-- **Run the model on another box you own** — point the server URL at, say, a Tailscale
-  host running `llama-server`. The CLI is just a thin HTTP client, so it's still your
-  hardware end to end; latency becomes network + inference.
+- **Hotkey.** Hardcoded to ⌃⌥Space; change `kVK_Space` / `controlKey | optionKey` in
+  `AppDelegate.swift` (Carbon key codes live in `Carbon.HIToolbox`).
+- **Translation or Q&A.** Change the prompt in Settings — Voxtral handles audio directly,
+  so `"Answer the question in this audio."` or `"Translate this to French."` both work.
+- **Remote model.** Point the server URL at another machine you own (for example a Tailscale
+  host running `llama-server`). The CLI is a thin HTTP client, so it stays your hardware
+  end to end.
 
----
+## Limitations
 
-## Deliberately kept simple
-
-A few things are intentionally minimal — easy to extend later if you want them:
-
-- **The hotkey is hardcoded** to ⌃⌥Space. A rebinding UI is more work than it sounds;
-  for now, change it in code (see [Customizing](#customizing)).
-- **History isn't persisted** — the transcript lives for the session and isn't saved.
-
----
-
-## Known limits
-
-- llama.cpp supports the original **Voxtral 3B (July 2025)** model, not the newer 4B
-  Realtime variant. Realtime streaming audio in llama.cpp is still in planning
-  ([issue #20914](https://github.com/ggml-org/llama.cpp/issues/20914)). For now it's
-  request/response: record first, then transcribe.
-- Carbon's `RegisterEventHotKey` is officially "deprecated," but it's still the only
-  public macOS API for a system-wide hotkey that doesn't require Accessibility. Apple
-  hasn't shipped a replacement.
-
----
+- llama.cpp supports the original Voxtral 3B (July 2025) model, not the newer 4B Realtime
+  variant. Streaming audio is still
+  [in planning](https://github.com/ggml-org/llama.cpp/issues/20914) upstream, so for now it
+  is record-then-transcribe rather than live.
+- The transcript is not persisted; it lives for the session.
+- `RegisterEventHotKey` is a deprecated Carbon API, but it remains the only public way to
+  register a system-wide hotkey without Accessibility. Apple has not shipped a replacement.
 
 ## License
 
-[MIT](LICENSE) © 2026 Steve Greensill. The Voxtral model and `llama.cpp` are the
-property of their respective authors, under their own licenses.
+[MIT](LICENSE) © 2026 Steve Greensill. The Voxtral model and llama.cpp are the property of
+their respective authors, under their own licenses.
