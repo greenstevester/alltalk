@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="design/icon.png" alt="AllTalk app icon" width="128" height="128">
+  <img src="https://raw.githubusercontent.com/greenstevester/alltalk/main/design/icon.png" alt="AllTalk app icon" width="128" height="128">
 </p>
 
 # AllTalk
