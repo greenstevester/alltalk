@@ -9,5 +9,8 @@ build/
 # Go CLI build output
 /cli/alltalk
 
+# JetBrains IDEs
+.idea/
+
 # Claude Code machine-local settings
 .claude/settings.local.json
