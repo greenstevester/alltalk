@@ -17,6 +17,7 @@
 		AA01000011 /* ServerState.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA02000011 /* ServerState.swift */; };
 		AA01000012 /* ServerDiscovery.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA02000012 /* ServerDiscovery.swift */; };
 		AA01000013 /* LlamaServerManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA02000013 /* LlamaServerManager.swift */; };
+		AA01000014 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AA02000014 /* Assets.xcassets */; };
 		BB01000001 /* ServerStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB02000001 /* ServerStateTests.swift */; };
 		BB01000002 /* ServerDiscoveryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB02000002 /* ServerDiscoveryTests.swift */; };
 		BB01000003 /* ServerState.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA02000011 /* ServerState.swift */; };
@@ -37,6 +38,7 @@
 		AA02000011 /* ServerState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServerState.swift; sourceTree = "<group>"; };
 		AA02000012 /* ServerDiscovery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServerDiscovery.swift; sourceTree = "<group>"; };
 		AA02000013 /* LlamaServerManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LlamaServerManager.swift; sourceTree = "<group>"; };
+		AA02000014 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		BB02000001 /* ServerStateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServerStateTests.swift; sourceTree = "<group>"; };
 		BB02000002 /* ServerDiscoveryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServerDiscoveryTests.swift; sourceTree = "<group>"; };
 		BB02000010 /* AllTalkTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AllTalkTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -75,6 +77,7 @@
 				AA02000011 /* ServerState.swift */,
 				AA02000012 /* ServerDiscovery.swift */,
 				AA02000013 /* LlamaServerManager.swift */,
+				AA02000014 /* Assets.xcassets */,
 				AA02000008 /* Info.plist */,
 				AA02000009 /* AllTalk.entitlements */,
 			);
@@ -171,6 +174,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AA01000014 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

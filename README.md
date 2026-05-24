@@ -283,7 +283,6 @@ A few things are intentionally minimal — easy to extend later if you want them
 
 - **The hotkey is hardcoded** to ⌃⌥Space. A rebinding UI is more work than it sounds;
   for now, change it in code (see [Customizing](#customizing)).
-- **No app icon** — it's a menu-bar utility, so the waveform glyph is enough.
 - **History isn't persisted** — the transcript lives for the session and isn't saved.
 
 ---
