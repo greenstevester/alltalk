@@ -1,0 +1,275 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		AA01000001 /* AllTalkApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA02000001 /* AllTalkApp.swift */; };
+		AA01000002 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA02000002 /* AppDelegate.swift */; };
+		AA01000003 /* GlobalHotkey.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA02000003 /* GlobalHotkey.swift */; };
+		AA01000004 /* AllTalkController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA02000004 /* AllTalkController.swift */; };
+		AA01000005 /* Clipboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA02000005 /* Clipboard.swift */; };
+		AA01000006 /* PopoverView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA02000006 /* PopoverView.swift */; };
+		AA01000007 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA02000007 /* SettingsView.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		AA02000001 /* AllTalkApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AllTalkApp.swift; sourceTree = "<group>"; };
+		AA02000002 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		AA02000003 /* GlobalHotkey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalHotkey.swift; sourceTree = "<group>"; };
+		AA02000004 /* AllTalkController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AllTalkController.swift; sourceTree = "<group>"; };
+		AA02000005 /* Clipboard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Clipboard.swift; sourceTree = "<group>"; };
+		AA02000006 /* PopoverView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopoverView.swift; sourceTree = "<group>"; };
+		AA02000007 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		AA02000008 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		AA02000009 /* AllTalk.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = AllTalk.entitlements; sourceTree = "<group>"; };
+		AA02000010 /* AllTalk.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AllTalk.app; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		AA03000001 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		AA04000001 = {
+			isa = PBXGroup;
+			children = (
+				AA04000002 /* AllTalk */,
+				AA04000003 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		AA04000002 /* AllTalk */ = {
+			isa = PBXGroup;
+			children = (
+				AA02000001 /* AllTalkApp.swift */,
+				AA02000002 /* AppDelegate.swift */,
+				AA02000003 /* GlobalHotkey.swift */,
+				AA02000004 /* AllTalkController.swift */,
+				AA02000005 /* Clipboard.swift */,
+				AA02000006 /* PopoverView.swift */,
+				AA02000007 /* SettingsView.swift */,
+				AA02000008 /* Info.plist */,
+				AA02000009 /* AllTalk.entitlements */,
+			);
+			path = AllTalk;
+			sourceTree = "<group>";
+		};
+		AA04000003 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				AA02000010 /* AllTalk.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		AA05000001 /* AllTalk */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AA08000001 /* Build configuration list for PBXNativeTarget "AllTalk" */;
+			buildPhases = (
+				AA06000001 /* Sources */,
+				AA03000001 /* Frameworks */,
+				AA07000001 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = AllTalk;
+			productName = AllTalk;
+			productReference = AA02000010 /* AllTalk.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		AA09000001 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1500;
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					AA05000001 = {
+						CreatedOnToolsVersion = 15.0;
+					};
+				};
+			};
+			buildConfigurationList = AA08000002 /* Build configuration list for PBXProject "AllTalk" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = AA04000001;
+			productRefGroup = AA04000003 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				AA05000001 /* AllTalk */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		AA07000001 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		AA06000001 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AA01000001 /* AllTalkApp.swift in Sources */,
+				AA01000002 /* AppDelegate.swift in Sources */,
+				AA01000003 /* GlobalHotkey.swift in Sources */,
+				AA01000004 /* AllTalkController.swift in Sources */,
+				AA01000005 /* Clipboard.swift in Sources */,
+				AA01000006 /* PopoverView.swift in Sources */,
+				AA01000007 /* SettingsView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		AA10000001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		AA10000002 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+			};
+			name = Release;
+		};
+		AA10000003 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = AllTalk/AllTalk.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = AllTalk/Info.plist;
+				INFOPLIST_KEY_LSUIElement = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.greenstevester.alltalk;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		AA10000004 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = AllTalk/AllTalk.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = AllTalk/Info.plist;
+				INFOPLIST_KEY_LSUIElement = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.greenstevester.alltalk;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		AA08000001 /* Build configuration list for PBXNativeTarget "AllTalk" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AA10000003 /* Debug */,
+				AA10000004 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		AA08000002 /* Build configuration list for PBXProject "AllTalk" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AA10000001 /* Debug */,
+				AA10000002 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = AA09000001 /* Project object */;
+}

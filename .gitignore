@@ -1,0 +1,13 @@
+# macOS
+.DS_Store
+
+# Xcode
+xcuserdata/
+DerivedData/
+build/
+
+# Go CLI build output
+/cli/alltalk
+
+# Claude Code machine-local settings
+.claude/settings.local.json
