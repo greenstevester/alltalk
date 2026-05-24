@@ -296,3 +296,10 @@ A few things are intentionally minimal — easy to extend later if you want them
 - Carbon's `RegisterEventHotKey` is officially "deprecated," but it's still the only
   public macOS API for a system-wide hotkey that doesn't require Accessibility. Apple
   hasn't shipped a replacement.
+
+---
+
+## License
+
+[MIT](LICENSE) © 2026 Steve Greensill. The Voxtral model and `llama.cpp` are the
+property of their respective authors, under their own licenses.
