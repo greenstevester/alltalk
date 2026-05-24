@@ -8,7 +8,7 @@ struct SettingsView: View {
             Section("Server") {
                 TextField("llama-server URL", text: $controller.serverURL)
                     .textFieldStyle(.roundedBorder)
-                Text("Default: http://localhost:8080")
+                Text("Default: http://localhost:8899")
                     .font(.caption).foregroundColor(.secondary)
             }
 

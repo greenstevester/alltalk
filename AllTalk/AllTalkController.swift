@@ -24,7 +24,7 @@ final class AllTalkController: ObservableObject {
             onStateChange?()
         }
     }
-    @Published var serverURL: String = UserDefaults.standard.string(forKey: "serverURL") ?? "http://localhost:8080" {
+    @Published var serverURL: String = UserDefaults.standard.string(forKey: "serverURL") ?? "http://localhost:8899" {
         didSet { UserDefaults.standard.set(serverURL, forKey: "serverURL") }
     }
     @Published var prompt: String = UserDefaults.standard.string(forKey: "prompt") ?? defaultPrompt {

@@ -7,7 +7,7 @@
 //
 //	alltalk -f clip.wav                          # transcribe a file
 //	alltalk -f clip.wav -p "Translate to French" # custom prompt
-//	alltalk -f clip.wav -url http://host:8080    # remote server
+//	alltalk -f clip.wav -url http://host:8899    # remote server
 //	alltalk                                       # interactive mic recording (sox/ffmpeg)
 package main
 
@@ -71,7 +71,7 @@ type streamChunk struct {
 
 func main() {
 	var (
-		serverURL = flag.String("url", "http://localhost:8080", "llama-server base URL")
+		serverURL = flag.String("url", "http://localhost:8899", "llama-server base URL")
 		prompt    = flag.String("p", "Transcribe this audio verbatim. Output only the transcript, no commentary.", "prompt sent alongside the audio")
 		file      = flag.String("f", "", "audio file to send (skip mic recording)")
 		keep      = flag.Bool("keep", false, "keep the temp recording on disk and print its path to stderr")
