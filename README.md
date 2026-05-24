@@ -106,29 +106,21 @@ process and synthesises a ⌘V keystroke, neither of which the App Sandbox allow
 download — it streams in the background while you do the rest, so the actual typing is
 a handful of commands.
 
-**1 · Get the model and start the server** (needs [Homebrew](https://brew.sh)):
+**1 · Install the model server + download the model** (needs [Homebrew](https://brew.sh)):
 
 ```bash
-brew install llama.cpp
+brew install llama.cpp   # provides `llama-server` — AllTalk launches & stops it for you
 
 # download the model + audio projector into a folder you control (~3.2 GB, one-time)
 mkdir -p ~/dev/huggingface/models && cd ~/dev/huggingface/models
 base=https://huggingface.co/ggml-org/Voxtral-Mini-3B-2507-GGUF/resolve/main
 curl -L -O $base/Voxtral-Mini-3B-2507-Q4_K_M.gguf        # 2.47 GB — model
 curl -L -O $base/mmproj-Voxtral-Mini-3B-2507-Q8_0.gguf   # 716 MB — audio projector
-
-# start the server, pointed at those files
-llama-server \
-  -m       ~/dev/huggingface/models/Voxtral-Mini-3B-2507-Q4_K_M.gguf \
-  --mmproj ~/dev/huggingface/models/mmproj-Voxtral-Mini-3B-2507-Q8_0.gguf \
-  --port 8899
 ```
 
-Leave it running in its own terminal. It's ready when the health check returns ok:
-
-```bash
-curl -s localhost:8899/health        # → {"status":"ok"} once the model has loaded
-```
+You don't start `llama-server` yourself — **AllTalk launches it on your first dictation
+and shuts it down when you quit.** (If your paths differ from the defaults above, set
+them in Settings → Model Server.)
 
 **2 · Build the CLI bridge** (new terminal):
 
@@ -262,8 +254,13 @@ signing tip.
     dictation straight into whatever app you're in.
   - **Show in popover** — accumulates the full transcript in a scrollable SwiftUI view
     and posts a notification when it's done.
+- **The model server is automatic** — AllTalk starts `llama-server` on your first
+  ⌃⌥Space (the menu status goes `◐ Starting…` → `● Ready`), reuses it for the session,
+  and stops it when you quit. The menu's **Stop / Start Model Server** item gives manual
+  control; a server you started yourself is adopted and left running on quit.
 - **Menu bar → Show Transcript…** — open the popover any time to see the latest text.
-- **Menu bar → Settings…** — server URL, the prompt, and the path to the `alltalk` CLI.
+- **Menu bar → Settings…** — server URL, prompt, the `alltalk` CLI path, and the
+  llama-server binary + model-folder paths.
 
 ---
 

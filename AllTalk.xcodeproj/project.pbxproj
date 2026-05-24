@@ -14,6 +14,13 @@
 		AA01000005 /* Clipboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA02000005 /* Clipboard.swift */; };
 		AA01000006 /* PopoverView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA02000006 /* PopoverView.swift */; };
 		AA01000007 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA02000007 /* SettingsView.swift */; };
+		AA01000011 /* ServerState.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA02000011 /* ServerState.swift */; };
+		AA01000012 /* ServerDiscovery.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA02000012 /* ServerDiscovery.swift */; };
+		AA01000013 /* LlamaServerManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA02000013 /* LlamaServerManager.swift */; };
+		BB01000001 /* ServerStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB02000001 /* ServerStateTests.swift */; };
+		BB01000002 /* ServerDiscoveryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB02000002 /* ServerDiscoveryTests.swift */; };
+		BB01000003 /* ServerState.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA02000011 /* ServerState.swift */; };
+		BB01000004 /* ServerDiscovery.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA02000012 /* ServerDiscovery.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -27,6 +34,12 @@
 		AA02000008 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		AA02000009 /* AllTalk.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = AllTalk.entitlements; sourceTree = "<group>"; };
 		AA02000010 /* AllTalk.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AllTalk.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		AA02000011 /* ServerState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServerState.swift; sourceTree = "<group>"; };
+		AA02000012 /* ServerDiscovery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServerDiscovery.swift; sourceTree = "<group>"; };
+		AA02000013 /* LlamaServerManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LlamaServerManager.swift; sourceTree = "<group>"; };
+		BB02000001 /* ServerStateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServerStateTests.swift; sourceTree = "<group>"; };
+		BB02000002 /* ServerDiscoveryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServerDiscoveryTests.swift; sourceTree = "<group>"; };
+		BB02000010 /* AllTalkTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AllTalkTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -44,6 +57,7 @@
 			isa = PBXGroup;
 			children = (
 				AA04000002 /* AllTalk */,
+				BB04000001 /* AllTalkTests */,
 				AA04000003 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -58,6 +72,9 @@
 				AA02000005 /* Clipboard.swift */,
 				AA02000006 /* PopoverView.swift */,
 				AA02000007 /* SettingsView.swift */,
+				AA02000011 /* ServerState.swift */,
+				AA02000012 /* ServerDiscovery.swift */,
+				AA02000013 /* LlamaServerManager.swift */,
 				AA02000008 /* Info.plist */,
 				AA02000009 /* AllTalk.entitlements */,
 			);
@@ -68,8 +85,18 @@
 			isa = PBXGroup;
 			children = (
 				AA02000010 /* AllTalk.app */,
+				BB02000010 /* AllTalkTests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		BB04000001 /* AllTalkTests */ = {
+			isa = PBXGroup;
+			children = (
+				BB02000001 /* ServerStateTests.swift */,
+				BB02000002 /* ServerDiscoveryTests.swift */,
+			);
+			path = AllTalkTests;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -91,6 +118,19 @@
 			productName = AllTalk;
 			productReference = AA02000010 /* AllTalk.app */;
 			productType = "com.apple.product-type.application";
+		};
+		BB05000001 /* AllTalkTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = BB08000001 /* Build configuration list for PBXNativeTarget "AllTalkTests" */;
+			buildPhases = (
+				BB06000001 /* Sources */,
+			);
+			buildRules = ();
+			dependencies = ();
+			name = AllTalkTests;
+			productName = AllTalkTests;
+			productReference = BB02000010 /* AllTalkTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
 
@@ -121,6 +161,7 @@
 			projectRoot = "";
 			targets = (
 				AA05000001 /* AllTalk */,
+				BB05000001 /* AllTalkTests */,
 			);
 		};
 /* End PBXProject section */
@@ -147,6 +188,20 @@
 				AA01000005 /* Clipboard.swift in Sources */,
 				AA01000006 /* PopoverView.swift in Sources */,
 				AA01000007 /* SettingsView.swift in Sources */,
+				AA01000011 /* ServerState.swift in Sources */,
+				AA01000012 /* ServerDiscovery.swift in Sources */,
+				AA01000013 /* LlamaServerManager.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BB06000001 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BB01000001 /* ServerStateTests.swift in Sources */,
+				BB01000002 /* ServerDiscoveryTests.swift in Sources */,
+				BB01000003 /* ServerState.swift in Sources */,
+				BB01000004 /* ServerDiscovery.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -248,6 +303,38 @@
 			};
 			name = Release;
 		};
+		BB10000001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.greenstevester.alltalk.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		BB10000002 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.greenstevester.alltalk.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -265,6 +352,15 @@
 			buildConfigurations = (
 				AA10000001 /* Debug */,
 				AA10000002 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		BB08000001 /* Build configuration list for PBXNativeTarget "AllTalkTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BB10000001 /* Debug */,
+				BB10000002 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

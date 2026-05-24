@@ -47,6 +47,10 @@ import UserNotifications
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound]) { _, _ in }
     }
 
+    func applicationWillTerminate(_ notification: Notification) {
+        controller.stopServer() // tear down the server we started (no-op for an adopted one)
+    }
+
     @objc private func togglePopover(_ sender: Any?) {
         guard let button = statusItem.button else { return }
         if popover.isShown {
@@ -59,6 +63,12 @@ import UserNotifications
 
     private func rebuildMenu() {
         let menu = NSMenu()
+
+        // Model-server status line (non-clickable; action == nil keeps it greyed).
+        let statusLine = NSMenuItem(title: controller.serverStatusLabel, action: nil, keyEquivalent: "")
+        statusLine.isEnabled = false
+        menu.addItem(statusLine)
+        menu.addItem(.separator())
 
         let recordingTitle = controller.isRecording ? "■ Stop Recording" : "● Start Recording  ⌃⌥Space"
         menu.addItem(NSMenuItem(title: recordingTitle, action: #selector(toggleRecord), keyEquivalent: ""))
@@ -76,6 +86,8 @@ import UserNotifications
 
         menu.addItem(.separator())
         menu.addItem(NSMenuItem(title: "Show Transcript…", action: #selector(togglePopover(_:)), keyEquivalent: ""))
+        let serverTitle = controller.serverIsActive ? "Stop Model Server" : "Start Model Server"
+        menu.addItem(NSMenuItem(title: serverTitle, action: #selector(toggleServer), keyEquivalent: ""))
         menu.addItem(NSMenuItem(title: "Settings…", action: #selector(openSettings), keyEquivalent: ","))
         menu.addItem(.separator())
         menu.addItem(NSMenuItem(title: "Quit AllTalk", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
@@ -88,6 +100,7 @@ import UserNotifications
     }
 
     @objc private func toggleRecord() { controller.toggleRecording() }
+    @objc private func toggleServer() { controller.toggleServer() }
     @objc private func setPasteMode() { controller.outputMode = .paste }
     @objc private func setNotifyMode() { controller.outputMode = .popover }
     @objc private func openSettings() {

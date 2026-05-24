@@ -12,11 +12,26 @@ struct SettingsView: View {
                     .font(.caption).foregroundColor(.secondary)
             }
 
+            Section("Model Server") {
+                HStack {
+                    TextField("llama-server path (blank = auto-detect)", text: $controller.llamaServerPath)
+                        .textFieldStyle(.roundedBorder)
+                    Button("Choose…") { choosePath(into: { controller.llamaServerPath = $0 }, directories: false) }
+                }
+                HStack {
+                    TextField("Model folder", text: $controller.modelFolder)
+                        .textFieldStyle(.roundedBorder)
+                    Button("Choose…") { choosePath(into: { controller.modelFolder = $0 }, directories: true) }
+                }
+                Text("Looks for \(ServerDiscovery.modelFileName) and \(ServerDiscovery.mmprojFileName) in this folder.")
+                    .font(.caption).foregroundColor(.secondary)
+            }
+
             Section("CLI Binary") {
                 HStack {
                     TextField("Path to `alltalk`", text: $controller.cliPath)
                         .textFieldStyle(.roundedBorder)
-                    Button("Choose…") { chooseCLI() }
+                    Button("Choose…") { choosePath(into: { controller.cliPath = $0 }, directories: false) }
                 }
                 Text("Built from the `cli/` Go module. Run `go build -o alltalk .` and point here.")
                     .font(.caption).foregroundColor(.secondary)
@@ -48,13 +63,11 @@ struct SettingsView: View {
         .frame(width: 480, height: 520)
     }
 
-    private func chooseCLI() {
+    private func choosePath(into assign: @escaping (String) -> Void, directories: Bool) {
         let panel = NSOpenPanel()
-        panel.canChooseFiles = true
-        panel.canChooseDirectories = false
+        panel.canChooseFiles = !directories
+        panel.canChooseDirectories = directories
         panel.allowsMultipleSelection = false
-        if panel.runModal() == .OK, let url = panel.url {
-            controller.cliPath = url.path
-        }
+        if panel.runModal() == .OK, let url = panel.url { assign(url.path) }
     }
 }

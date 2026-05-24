@@ -33,6 +33,15 @@ final class AllTalkController: ObservableObject {
     @Published var cliPath: String = UserDefaults.standard.string(forKey: "cliPath") ?? "/usr/local/bin/alltalk" {
         didSet { UserDefaults.standard.set(cliPath, forKey: "cliPath") }
     }
+    @Published var llamaServerPath: String = UserDefaults.standard.string(forKey: "llamaServerPath") ?? "" {
+        didSet { UserDefaults.standard.set(llamaServerPath, forKey: "llamaServerPath") }
+    }
+    @Published var modelFolder: String = UserDefaults.standard.string(forKey: "modelFolder") ?? "~/dev/huggingface/models" {
+        didSet { UserDefaults.standard.set(modelFolder, forKey: "modelFolder") }
+    }
+
+    /// Owns the local llama-server lifecycle (lazy start, health, teardown).
+    let serverManager = LlamaServerManager()
 
     var onStateChange: (() -> Void)?
 
@@ -50,7 +59,16 @@ final class AllTalkController: ObservableObject {
            let mode = OutputMode(rawValue: raw) {
             outputMode = mode
         }
+        // Server-state changes must also refresh the menu.
+        serverManager.onStateChange = { [weak self] in self?.onStateChange?() }
     }
+
+    // MARK: - Model server
+
+    var serverStatusLabel: String { serverManager.state.menuLabel }
+    var serverIsActive: Bool { serverManager.state.isActive }
+    func toggleServer() { serverManager.toggle() }
+    func stopServer() { serverManager.stopIfOwned() }
 
     // MARK: - Recording lifecycle
 
@@ -94,6 +112,8 @@ final class AllTalkController: ObservableObject {
             status = "Recording…"
             playSound("Tink")
             onStateChange?()
+            // Lazy-start the model server now so its load overlaps with the user speaking.
+            serverManager.ensureRunning()
         } catch {
             notify(title: "Recording Failed", body: error.localizedDescription)
         }
@@ -116,6 +136,20 @@ final class AllTalkController: ObservableObject {
         let size = (try? FileManager.default.attributesOfItem(atPath: url.path)[.size] as? Int) ?? 0
         if size < 4_000 {
             notify(title: "Recording Too Short", body: "Try again.")
+            try? FileManager.default.removeItem(at: url)
+            status = "Idle"
+            onStateChange?()
+            return
+        }
+
+        // Make sure the model server is up before handing the audio to the CLI.
+        status = "Starting model…"
+        onStateChange?()
+        let serverState = await serverManager.waitUntilReady()
+        guard case .ready = serverState else {
+            let reason: String
+            if case .error(let why) = serverState { reason = why } else { reason = "model server not ready" }
+            notify(title: "Model Not Ready", body: reason)
             try? FileManager.default.removeItem(at: url)
             status = "Idle"
             onStateChange?()

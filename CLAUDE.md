@@ -8,7 +8,7 @@ AllTalk is a macOS menu-bar push-to-talk dictation app. Two cooperating processe
 
 - **`AllTalk/`** — Swift/SwiftUI menu-bar app. Records mic audio, spawns the Go CLI, renders the streamed reply.
 - **`cli/`** — Go CLI (`alltalk`), stdlib only, ~250 LOC. A thin HTTP client that base64-encodes a WAV, POSTs it to `llama-server`, and streams the reply to stdout.
-- **`llama-server`** (external, not in this repo) — runs the `Voxtral-Mini-3B` GGUF model, exposes an OpenAI-compatible `/v1/chat/completions` endpoint on `:8899`.
+- **`llama-server`** (external, not in this repo) — runs the `Voxtral-Mini-3B` GGUF model, exposes an OpenAI-compatible `/v1/chat/completions` endpoint on `:8899`. AllTalk manages its lifecycle via `LlamaServerManager` (`AllTalk/LlamaServerManager.swift`): lazy start on first dictation, health-polled, adopts an already-running server, and tears down **only a server it started** on quit.
 
 > Note: `Voxtral-Mini-3B` is the name of the upstream model (from `ggml-org`), not this project. The app/CLI are named **AllTalk**; the model name stays as-is wherever it appears.
 
