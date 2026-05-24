@@ -8,13 +8,13 @@ AllTalk is a macOS menu-bar push-to-talk dictation app. Two cooperating processe
 
 - **`AllTalk/`** — Swift/SwiftUI menu-bar app. Records mic audio, spawns the Go CLI, renders the streamed reply.
 - **`cli/`** — Go CLI (`alltalk`), stdlib only, ~250 LOC. A thin HTTP client that base64-encodes a WAV, POSTs it to `llama-server`, and streams the reply to stdout.
-- **`llama-server`** (external, not in this repo) — runs the `Voxtral-Mini-3B` GGUF model, exposes an OpenAI-compatible `/v1/chat/completions` endpoint on `:8080`.
+- **`llama-server`** (external, not in this repo) — runs the `Voxtral-Mini-3B` GGUF model, exposes an OpenAI-compatible `/v1/chat/completions` endpoint on `:8899`.
 
 > Note: `Voxtral-Mini-3B` is the name of the upstream model (from `ggml-org`), not this project. The app/CLI are named **AllTalk**; the model name stays as-is wherever it appears.
 
 The model server is a hard dependency for any end-to-end test. Start it with:
 ```bash
-llama-server -hf ggml-org/Voxtral-Mini-3B-2507-GGUF --port 8080
+llama-server -hf ggml-org/Voxtral-Mini-3B-2507-GGUF --port 8899
 ```
 
 ## Build & run
@@ -66,7 +66,7 @@ The Swift↔Go contract is just argv + stdout text. The CLI has no knowledge of 
 These look like smells but are intentional:
 
 - **App Sandbox is OFF** (`AllTalk.entitlements`). Required: spawning a child process and posting synthetic CGEvents are both incompatible with the sandbox. Do not re-enable it without rearchitecting.
-- **Carbon `RegisterEventHotKey`** (`GlobalHotkey.swift`) for the ⌃⌥Space global hotkey. It's "deprecated" but still the only public API for a system-wide hotkey that doesn't require Accessibility. Hotkey is hardcoded; changing it means editing `kVK_Space` / `controlKey | optionKey` in `AppDelegate.applicationDidFinishLaunching`.
+- **Carbon `RegisterEventHotKey`** (`GlobalHotkey.swift`) for the ⌃⌥Space (Control + Option + Space) global hotkey. It's "deprecated" but still the only public API for a system-wide hotkey that doesn't require Accessibility. Hotkey is hardcoded; changing it means editing `kVK_Space` / `controlKey | optionKey` in `AppDelegate.applicationDidFinishLaunching`.
 - **`LSUIElement` / `.accessory` activation policy** — no Dock icon by design; the app lives only in the menu bar.
 
 ## Conventions
