@@ -84,8 +84,9 @@ unzip it, and move it to `/Applications`.
 > xattr -dr com.apple.quarantine "/Applications/AllTalk.app"
 > ```
 >
-> or via System Settings → Privacy & Security → "Open Anyway". With Homebrew, add
-> `--no-quarantine` to skip the prompt. A notarized build is planned.
+> or via System Settings → Privacy & Security → "Open Anyway". This applies to the Homebrew
+> install too — the app ends up at `/Applications/AllTalk.app` either way. A notarized build
+> is planned, which removes this step entirely.
 
 **Set up the model** — AllTalk drives a local `llama.cpp` server, which it starts and stops
 for you. Install the server and download the model once:
