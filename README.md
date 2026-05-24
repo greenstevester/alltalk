@@ -68,19 +68,30 @@ Three local components:
 
 ## Install
 
-Download the latest signed build from the [Releases page](https://github.com/greenstevester/alltalk/releases),
-move `AllTalk.app` to `/Applications`, and open it.
+**Get the app** — with Homebrew:
 
-> The first notarized release is still in progress. Until it ships, build from source below.
+```sh
+brew install --cask greenstevester/tap/alltalk
+```
 
-## Build from source
+or download `AllTalk.app` from the [latest release](https://github.com/greenstevester/alltalk/releases/latest),
+unzip it, and move it to `/Applications`.
 
-Requirements: a Mac (Apple Silicon recommended), Xcode, Go, and [Homebrew](https://brew.sh).
+> **Not notarized yet.** This build isn't signed with an Apple Developer ID, so macOS
+> blocks it on first launch. Allow it once with:
+>
+> ```sh
+> xattr -dr com.apple.quarantine "/Applications/AllTalk.app"
+> ```
+>
+> or via System Settings → Privacy & Security → "Open Anyway". With Homebrew, add
+> `--no-quarantine` to skip the prompt. A notarized build is planned.
 
-**1. Install the model server and download the model.**
+**Set up the model** — AllTalk drives a local `llama.cpp` server, which it starts and stops
+for you. Install the server and download the model once:
 
 ```bash
-brew install llama.cpp   # provides llama-server; AllTalk launches and stops it for you
+brew install llama.cpp
 
 mkdir -p ~/dev/huggingface/models && cd ~/dev/huggingface/models
 base=https://huggingface.co/ggml-org/Voxtral-Mini-3B-2507-GGUF/resolve/main
@@ -88,24 +99,9 @@ curl -L -O $base/Voxtral-Mini-3B-2507-Q4_K_M.gguf        # 2.47 GB, model
 curl -L -O $base/mmproj-Voxtral-Mini-3B-2507-Q8_0.gguf   # 716 MB, audio projector
 ```
 
-Both files are required — the model and its audio projector (`mmproj`). Without the
-projector, `llama-server` starts but cannot process audio. If you put them somewhere other
-than `~/dev/huggingface/models`, set the path in the app's Settings.
-
-**2. Build and install the CLI.**
-
-```bash
-cd cli && go build -o alltalk . && sudo install alltalk /usr/local/bin/
-```
-
-**3. Build the app.**
-
-```bash
-open AllTalk.xcodeproj   # then ⌘R
-```
-
-If Xcode complains about signing, set your Team under Signing & Capabilities, or switch the
-certificate to "Sign to Run Locally."
+Both files are required — the model and its audio projector (`mmproj`); without the
+projector the server starts but can't process audio. If you store them somewhere other than
+`~/dev/huggingface/models`, set the path in the app's Settings.
 
 <details>
 <summary>Other ways to get the model</summary>
@@ -120,6 +116,18 @@ Ollama is not an option: it cannot feed audio into a model
 ([open requests](https://github.com/ollama/ollama/issues/12440)), so it cannot run Voxtral
 for transcription.
 </details>
+
+## Build from source
+
+For hacking on AllTalk. You need Xcode and Go, plus the model from [Install](#install) above.
+
+```bash
+cd cli && go build -o alltalk . && sudo install alltalk /usr/local/bin/   # the CLI
+open AllTalk.xcodeproj                                                    # the app — then ⌘R
+```
+
+If Xcode complains about signing, set your Team under Signing & Capabilities, or switch the
+certificate to "Sign to Run Locally."
 
 ## Using it
 
