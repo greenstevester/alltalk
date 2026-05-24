@@ -119,13 +119,19 @@ for transcription.
 
 ## Using it
 
-The hotkey is **⌃⌥Space** — hold Control, Option, and the spacebar together:
+**The hotkey is ⌃⌥Space** — a three-key chord. Hold Control, Option, and the spacebar at
+the same time, not in sequence. The symbols are how macOS writes modifier keys:
 
-| Glyph | Key |
-|:-----:|-----|
-| ⌃ | Control |
-| ⌥ | Option (`alt` on some keyboards) |
-| Space | spacebar |
+| Symbol | Key | Where it is |
+|:------:|-----|-------------|
+| ⌃ | Control | bottom row, far left |
+| ⌥ | Option (`alt` on some keyboards) | left of Command |
+| Space | spacebar | the long bar at the bottom |
+
+(The other macOS modifiers, for reference: ⌘ Command and ⇧ Shift.) It is a *global* hotkey
+— it fires whatever app is focused. If it ever seems unresponsive, check whether an
+input-source or Spotlight shortcut has claimed ⌃Space or ⌥Space in System Settings →
+Keyboard → Keyboard Shortcuts.
 
 - **Record.** Press ⌃⌥Space to start, press again to stop. Transcription begins on stop and
   streams back in real time.
