@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="design/icon.png" alt="AllTalk app icon" width="128" height="128">
+</p>
+
 # AllTalk
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
