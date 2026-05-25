@@ -71,3 +71,28 @@ struct PopoverView: View {
         }
     }
 }
+
+/// Live menu header: app icon, name, server status, and an on/off switch. Observes the
+/// server so the open menu updates as the state changes (Starting… → Running, etc.).
+struct ServerHeaderView: View {
+    @ObservedObject var server: LlamaServerManager
+
+    var body: some View {
+        HStack(spacing: 10) {
+            Image(nsImage: NSApp.applicationIconImage)
+                .resizable()
+                .frame(width: 30, height: 30)
+            VStack(alignment: .leading, spacing: 1) {
+                Text("AllTalk").font(.system(size: 13, weight: .semibold))
+                Text(server.subtitle).font(.system(size: 11)).foregroundStyle(.secondary)
+            }
+            Spacer()
+            Toggle("", isOn: Binding(get: { server.state.isActive },
+                                     set: { _ in server.toggle() }))
+                .toggleStyle(.switch)
+                .labelsHidden()
+        }
+        .padding(.horizontal, 12)
+        .frame(width: 260, height: 52)
+    }
+}

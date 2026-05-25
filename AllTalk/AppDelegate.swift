@@ -3,7 +3,7 @@ import Carbon.HIToolbox
 import SwiftUI
 import UserNotifications
 
-@MainActor final class AppDelegate: NSObject, NSApplicationDelegate {
+@MainActor final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     let controller = AllTalkController()
     private var statusItem: NSStatusItem!
     private var popover: NSPopover!
@@ -70,10 +70,13 @@ import UserNotifications
     private func rebuildMenu() {
         let menu = NSMenu()
         menu.autoenablesItems = false   // we manage enabling; keeps the custom header view interactive
+        menu.delegate = self            // menuWillOpen re-checks the server's real state
 
-        // Tailscale-style header: app icon, name, server status, and an on/off switch.
+        // Tailscale-style header: app icon, name, server status, and a live on/off switch.
         let header = NSMenuItem()
-        header.view = makeServerHeader()
+        let hosting = NSHostingView(rootView: ServerHeaderView(server: controller.serverManager))
+        hosting.frame = NSRect(x: 0, y: 0, width: 260, height: 52)
+        header.view = hosting
         menu.addItem(header)
         menu.addItem(.separator())
 
@@ -116,39 +119,8 @@ import UserNotifications
         popover.contentViewController?.view.window?.makeKey()
     }
 
-    @objc private func serverSwitchToggled(_ sender: NSSwitch) {
-        controller.toggleServer()
-    }
-
-    /// Tailscale-style header row: app icon, "AllTalk", the server status, and an on/off switch.
-    private func makeServerHeader() -> NSView {
-        let width: CGFloat = 260, height: CGFloat = 52
-        let view = NSView(frame: NSRect(x: 0, y: 0, width: width, height: height))
-
-        let icon = NSImageView(frame: NSRect(x: 14, y: (height - 30) / 2, width: 30, height: 30))
-        icon.image = NSApp.applicationIconImage
-        icon.imageScaling = .scaleProportionallyUpOrDown
-        view.addSubview(icon)
-
-        let title = NSTextField(labelWithString: "AllTalk")
-        title.font = .systemFont(ofSize: 13, weight: .semibold)
-        title.frame = NSRect(x: 54, y: 27, width: 150, height: 18)
-        view.addSubview(title)
-
-        let subtitle = NSTextField(labelWithString: controller.serverSubtitle)
-        subtitle.font = .systemFont(ofSize: 11)
-        subtitle.textColor = .secondaryLabelColor
-        subtitle.lineBreakMode = .byTruncatingTail
-        subtitle.frame = NSRect(x: 54, y: 9, width: 150, height: 16)
-        view.addSubview(subtitle)
-
-        let toggle = NSSwitch(frame: NSRect(x: width - 58, y: (height - 22) / 2, width: 44, height: 22))
-        toggle.state = controller.serverIsActive ? .on : .off
-        toggle.target = self
-        toggle.action = #selector(serverSwitchToggled(_:))
-        view.addSubview(toggle)
-
-        return view
+    func menuWillOpen(_ menu: NSMenu) {
+        controller.serverManager.refresh()   // actively re-check the real server state on open
     }
     @objc private func openSettings() {
         // Open our own AppKit-hosted window rather than the SwiftUI `Settings` scene:

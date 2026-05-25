@@ -5,6 +5,7 @@ final class ServerStateTests: XCTestCase {
     func test_menuLabel_perCase() {
         XCTAssertEqual(ServerState.stopped.menuLabel, "○ Model: Stopped")
         XCTAssertEqual(ServerState.starting.menuLabel, "◐ Model: Starting…")
+        XCTAssertEqual(ServerState.stopping.menuLabel, "◐ Model: Stopping…")
         XCTAssertEqual(ServerState.ready.menuLabel, "● Model: Ready")
         XCTAssertEqual(ServerState.error("boom").menuLabel, "⚠ Model: boom")
     }
@@ -13,6 +14,7 @@ final class ServerStateTests: XCTestCase {
         XCTAssertTrue(ServerState.starting.isActive)
         XCTAssertTrue(ServerState.ready.isActive)
         XCTAssertFalse(ServerState.stopped.isActive)
+        XCTAssertFalse(ServerState.stopping.isActive)
         XCTAssertFalse(ServerState.error("x").isActive)
     }
 

@@ -8,6 +8,17 @@ import Foundation
 final class LlamaServerManager: ObservableObject {
     @Published private(set) var state: ServerState = .stopped
 
+    /// Friendly one-liner for the menu header.
+    var subtitle: String {
+        switch state {
+        case .stopped:        return "Model server stopped"
+        case .starting:       return "Starting server…"
+        case .stopping:       return "Stopping server…"
+        case .ready:          return "Model server running"
+        case .error(let why): return why
+        }
+    }
+
     /// Fired on every state change so the AppKit menu can rebuild.
     var onStateChange: (() -> Void)?
 
@@ -63,23 +74,45 @@ final class LlamaServerManager: ObservableObject {
     func stopIfOwned() {
         startTask?.cancel(); startTask = nil
         healthTask?.cancel(); healthTask = nil
-        if weStartedIt {
-            if let p = process, p.isRunning {
-                let pid = p.processIdentifier
-                p.terminate() // SIGTERM
-                DispatchQueue.global().asyncAfter(deadline: .now() + 2) {
-                    if kill(pid, 0) == 0 { kill(pid, SIGKILL) }
-                }
-            } else if let pid = adoptedPid, kill(pid, 0) == 0 {
-                kill(pid, SIGTERM)
-                DispatchQueue.global().asyncAfter(deadline: .now() + 2) {
-                    if kill(pid, 0) == 0 { kill(pid, SIGKILL) }
+        guard weStartedIt else {
+            // Adopted (someone else's) server — leave it running, just forget it.
+            process = nil; adoptedPid = nil
+            setState(.stopped)
+            return
+        }
+        setState(.stopping)
+        let pid = process?.processIdentifier ?? adoptedPid
+        if let p = process, p.isRunning { p.terminate() }   // SIGTERM
+        else if let pid { kill(pid, SIGTERM) }
+        process = nil; weStartedIt = false; adoptedPid = nil
+        try? FileManager.default.removeItem(at: pidFileURL)
+        DispatchQueue.global().asyncAfter(deadline: .now() + 1) { [weak self] in
+            if let pid, kill(pid, 0) == 0 { kill(pid, SIGKILL) }
+            DispatchQueue.main.async { self?.setState(.stopped) }
+        }
+    }
+
+    /// Re-verify the server's real state (called when the menu opens) so the header
+    /// reflects reality, not just our last belief — picks up a crashed or
+    /// externally-started server.
+    func refresh() {
+        switch state { case .starting, .stopping: return; default: break }
+        Task { [weak self] in
+            guard let self else { return }
+            let up = await self.isCompatibleServerAnswering()
+            switch self.state {
+            case .starting, .stopping:
+                return
+            default:
+                if up, !self.state.isActive {
+                    self.weStartedIt = false
+                    self.setState(.ready)
+                } else if !up, case .ready = self.state {
+                    self.process = nil; self.weStartedIt = false; self.adoptedPid = nil
+                    self.setState(.stopped)
                 }
             }
-            try? FileManager.default.removeItem(at: pidFileURL)
         }
-        process = nil; weStartedIt = false; adoptedPid = nil
-        setState(.stopped)
     }
 
     // MARK: - Internals

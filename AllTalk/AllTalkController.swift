@@ -67,14 +67,6 @@ final class AllTalkController: ObservableObject {
 
     var serverStatusLabel: String { serverManager.state.menuLabel }
     var serverIsActive: Bool { serverManager.state.isActive }
-    var serverSubtitle: String {
-        switch serverManager.state {
-        case .stopped:        return "Model server stopped"
-        case .starting:       return "Starting model…"
-        case .ready:          return "Model server running"
-        case .error(let why): return why
-        }
-    }
     func toggleServer() { serverManager.toggle() }
     func stopServer() { serverManager.stopIfOwned() }
 
