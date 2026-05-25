@@ -8,6 +8,7 @@ import UserNotifications
     private var statusItem: NSStatusItem!
     private var popover: NSPopover!
     private var hotkey: GlobalHotkey?
+    private var settingsWindow: NSWindow?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         NSApp.setActivationPolicy(.accessory) // menu bar only, no Dock icon
@@ -104,12 +105,19 @@ import UserNotifications
     @objc private func setPasteMode() { controller.outputMode = .paste }
     @objc private func setNotifyMode() { controller.outputMode = .popover }
     @objc private func openSettings() {
-        if #available(macOS 14, *) {
-            NSApp.activate()
-            NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
-        } else {
-            NSApp.activate(ignoringOtherApps: true)
-            NSApp.sendAction(Selector(("showPreferencesWindow:")), to: nil, from: nil)
+        // Open our own AppKit-hosted window rather than the SwiftUI `Settings` scene:
+        // the private `showSettingsWindow:` selector is unreliable for a menu-bar
+        // (.accessory) app and silently no-ops on recent macOS.
+        if settingsWindow == nil {
+            let host = NSHostingController(rootView: SettingsView().environmentObject(controller))
+            let win = NSWindow(contentViewController: host)
+            win.title = "AllTalk Settings"
+            win.styleMask = [.titled, .closable]
+            win.isReleasedWhenClosed = false
+            win.center()
+            settingsWindow = win
         }
+        NSApp.activate(ignoringOtherApps: true)
+        settingsWindow?.makeKeyAndOrderFront(nil)
     }
 }

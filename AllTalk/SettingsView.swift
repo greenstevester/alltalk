@@ -4,66 +4,110 @@ struct SettingsView: View {
     @EnvironmentObject var controller: AllTalkController
 
     var body: some View {
+        TabView {
+            generalTab
+                .tabItem { Label("General", systemImage: "gearshape") }
+            modelServerTab
+                .tabItem { Label("Model Server", systemImage: "server.rack") }
+            aboutTab
+                .tabItem { Label("About", systemImage: "info.circle") }
+        }
+        .frame(width: 540, height: 400)
+    }
+
+    // MARK: - General
+
+    private var generalTab: some View {
         Form {
-            Section("Server") {
-                TextField("llama-server URL", text: $controller.serverURL)
-                    .textFieldStyle(.roundedBorder)
-                Text("Default: http://localhost:8899")
-                    .font(.caption).foregroundColor(.secondary)
+            Picker("Output mode", selection: $controller.outputMode) {
+                Text("Paste at cursor").tag(OutputMode.paste)
+                Text("Show in popover").tag(OutputMode.popover)
             }
-
-            Section("Model Server") {
-                HStack {
-                    TextField("llama-server path (blank = auto-detect)", text: $controller.llamaServerPath)
-                        .textFieldStyle(.roundedBorder)
-                    Button("Choose…") { choosePath(into: { controller.llamaServerPath = $0 }, directories: false) }
-                }
-                HStack {
-                    TextField("Model folder", text: $controller.modelFolder)
-                        .textFieldStyle(.roundedBorder)
-                    Button("Choose…") { choosePath(into: { controller.modelFolder = $0 }, directories: true) }
-                }
-                Text("Looks for \(ServerDiscovery.modelFileName) and \(ServerDiscovery.mmprojFileName) in this folder.")
-                    .font(.caption).foregroundColor(.secondary)
-            }
-
-            Section("CLI Binary") {
-                HStack {
-                    TextField("Path to `alltalk`", text: $controller.cliPath)
-                        .textFieldStyle(.roundedBorder)
-                    Button("Choose…") { choosePath(into: { controller.cliPath = $0 }, directories: false) }
-                }
-                Text("Built from the `cli/` Go module. Run `go build -o alltalk .` and point here.")
-                    .font(.caption).foregroundColor(.secondary)
-            }
+            .pickerStyle(.segmented)
 
             Section("Prompt") {
                 TextEditor(text: $controller.prompt)
                     .font(.system(.body, design: .monospaced))
-                    .frame(height: 80)
+                    .frame(minHeight: 90)
                 Button("Reset to default") {
                     controller.prompt = AllTalkController.defaultPrompt
                 }
             }
 
-            Section("Output") {
-                Picker("Mode", selection: $controller.outputMode) {
-                    Text("Paste at cursor").tag(OutputMode.paste)
-                    Text("Show in popover").tag(OutputMode.popover)
-                }
-                .pickerStyle(.radioGroup)
-            }
-
-            Section("Hotkey") {
-                Text("⌃⌥Space  (hardcoded for now)")
-                    .font(.system(.body, design: .monospaced))
-            }
+            LabeledContent("Hotkey", value: "⌃⌥Space")
         }
-        .padding(20)
-        .frame(width: 480, height: 520)
+        .formStyle(.grouped)
     }
 
-    private func choosePath(into assign: @escaping (String) -> Void, directories: Bool) {
+    // MARK: - Model Server
+
+    private var modelServerTab: some View {
+        Form {
+            Section {
+                TextField("Server URL", text: $controller.serverURL)
+            } footer: {
+                Text("Where AllTalk reaches llama-server. Default: http://localhost:8899")
+                    .foregroundStyle(.secondary)
+            }
+
+            Section("Paths") {
+                pathRow("llama-server", binding: $controller.llamaServerPath,
+                        prompt: "blank = auto-detect", directories: false)
+                pathRow("Model folder", binding: $controller.modelFolder,
+                        prompt: "~/dev/huggingface/models", directories: true)
+                pathRow("alltalk CLI", binding: $controller.cliPath,
+                        prompt: "/usr/local/bin/alltalk", directories: false)
+            }
+        }
+        .formStyle(.grouped)
+    }
+
+    // MARK: - About
+
+    private var appVersion: String {
+        let v = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "?"
+        return "Version \(v)"
+    }
+
+    private var aboutTab: some View {
+        VStack(spacing: 10) {
+            Image(nsImage: NSApp.applicationIconImage)
+                .resizable()
+                .frame(width: 88, height: 88)
+            Text("AllTalk").font(.title2).fontWeight(.semibold)
+            Text(appVersion).font(.subheadline).foregroundStyle(.secondary)
+            Text("Push-to-talk dictation that runs entirely on your own machine.")
+                .font(.callout)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal)
+            Link("github.com/greenstevester/alltalk",
+                 destination: URL(string: "https://github.com/greenstevester/alltalk")!)
+                .padding(.top, 4)
+            Text("MIT License · © 2026 Steve Greensill")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .padding()
+    }
+
+    @ViewBuilder
+    private func pathRow(_ label: String, binding: Binding<String>,
+                         prompt: String, directories: Bool) -> some View {
+        LabeledContent(label) {
+            HStack(spacing: 6) {
+                TextField(prompt, text: binding)
+                    .textFieldStyle(.roundedBorder)
+                    .frame(minWidth: 220)
+                Button("Choose…") {
+                    choosePath(directories: directories) { binding.wrappedValue = $0 }
+                }
+            }
+        }
+    }
+
+    private func choosePath(directories: Bool, assign: @escaping (String) -> Void) {
         let panel = NSOpenPanel()
         panel.canChooseFiles = !directories
         panel.canChooseDirectories = directories
