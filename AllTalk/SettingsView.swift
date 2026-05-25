@@ -11,6 +11,7 @@ struct SettingsView: View {
     var body: some View {
         TabView {
             generalTab.tabItem { Label("General", systemImage: "gearshape") }
+            advancedTab.tabItem { Label("Advanced", systemImage: "slider.horizontal.3") }
             setupTab.tabItem { Label("Setup Sanity Check", systemImage: "checkmark.seal") }
             aboutTab.tabItem { Label("About", systemImage: "info.circle") }
         }
@@ -28,26 +29,91 @@ struct SettingsView: View {
                 }
                 .pickerStyle(.segmented)
             } header: {
-                Text("When you dictate")
+                Text("Choose your text output mode when dictating:")
             } footer: {
-                Text("Where the transcript goes. “Paste at cursor” types it into whatever app is focused, so click into a text field first. “Show in popover” collects it in AllTalk’s own window for you to copy.")
-            }
-
-            Section {
-                TextEditor(text: $controller.prompt)
-                    .font(.system(.body, design: .monospaced))
-                    .frame(minHeight: 80)
-                Button("Reset to default") { controller.prompt = AllTalkController.defaultPrompt }
-            } header: {
-                Text("Prompt")
-            } footer: {
-                Text("Sent to the model with every recording. The default transcribes word-for-word. Change it for translation or Q&A — e.g. “Translate this to French.” or “Answer the question in this audio.”")
+                Text("“Paste at cursor” inserts the transcript where your cursor currently sits — so click into a text field first. “Show in popover” pops up an AllTalk window where all your text is captured for you (to copy from if you choose).")
             }
 
             Section {
                 LabeledContent("Hotkey", value: "⌃⌥Space")
             } footer: {
                 Text("Hold Control + Option + Space to start recording; press again to stop. Hardcoded for now.")
+            }
+        }
+        .formStyle(.grouped)
+    }
+
+    // MARK: - Advanced (system prompt)
+
+    /// A named example instruction the user can start from. The prompt text is sent to
+    /// the model with every recording, so it changes what the model *does* with speech.
+    private struct PromptPreset: Identifiable {
+        var id: String { name }
+        let name: String
+        let detail: String
+        let prompt: String
+    }
+
+    private static let promptPresets: [PromptPreset] = [
+        PromptPreset(
+            name: "Transcribe verbatim",
+            detail: "Word-for-word — no tidying, no commentary. Exactly what you said. (Default.)",
+            prompt: "Transcribe this audio verbatim. Output only the transcript, no commentary."),
+        PromptPreset(
+            name: "Clean up",
+            detail: "Transcribes, then drops filler words (“um”, “uh”), false starts and obvious slips.",
+            prompt: "Transcribe this audio, removing filler words, false starts and obvious grammar mistakes. Output only the cleaned-up text, no commentary."),
+        PromptPreset(
+            name: "Translate to English",
+            detail: "Speak in any language; get clean English back.",
+            prompt: "Translate the speech in this audio into English. Output only the translation, no commentary."),
+        PromptPreset(
+            name: "Answer the question",
+            detail: "Treats what you say as a question and answers it concisely.",
+            prompt: "Answer the question asked in this audio. Be concise. Output only the answer."),
+        PromptPreset(
+            name: "Bullet summary",
+            detail: "Condenses what you said into a few short bullet points.",
+            prompt: "Summarise the speech in this audio as concise bullet points. Output only the bullets."),
+    ]
+
+    private static let customPresetTag = "Custom"
+
+    /// Which preset (if any) the current prompt text matches; otherwise “Custom”.
+    private var selectedPresetName: String {
+        Self.promptPresets.first { $0.prompt == controller.prompt }?.name ?? Self.customPresetTag
+    }
+
+    private var presetBinding: Binding<String> {
+        Binding(
+            get: { selectedPresetName },
+            set: { name in
+                if let preset = Self.promptPresets.first(where: { $0.name == name }) {
+                    controller.prompt = preset.prompt   // selecting “Custom” is a no-op
+                }
+            })
+    }
+
+    private var advancedTab: some View {
+        Form {
+            Section {
+                Picker("Example", selection: presetBinding) {
+                    ForEach(Self.promptPresets) { Text($0.name).tag($0.name) }
+                    Divider()
+                    Text("Custom").tag(Self.customPresetTag)
+                }
+                if let detail = Self.promptPresets.first(where: { $0.name == selectedPresetName })?.detail {
+                    Text(detail).font(.callout).foregroundStyle(.secondary)
+                }
+
+                TextEditor(text: $controller.prompt)
+                    .font(.system(.body, design: .monospaced))
+                    .frame(minHeight: 90)
+                Button("Reset to default") { controller.prompt = AllTalkController.defaultPrompt }
+            } header: {
+                Text("System prompt")
+            } footer: {
+                Text("This instruction is sent to the model with every recording — it changes what the model does with your speech, not just how it’s written down. Pick an example to start from, then edit it freely.")
             }
         }
         .formStyle(.grouped)
