@@ -25,14 +25,14 @@ struct SettingsView: View {
         Form {
             Section {
                 Picker("Output mode", selection: $controller.outputMode) {
-                    Text("Paste at cursor").tag(OutputMode.paste)
+                    Text("Insert at cursor").tag(OutputMode.paste)
                     Text("Show in popover").tag(OutputMode.popover)
                 }
                 .pickerStyle(.segmented)
             } header: {
                 Text("Choose your text output mode when dictating:")
             } footer: {
-                Text("“Paste at cursor” inserts the transcript where your cursor currently sits — so click into a text field first. “Show in popover” pops up an AllTalk window where all your text is captured for you (to copy from if you choose).")
+                Text("“Insert at cursor” places the transcript where your cursor currently sits — so click into a text field first. “Show in popover” pops up an AllTalk window where all your text is captured for you (to copy from if you choose).")
             }
 
             Section {

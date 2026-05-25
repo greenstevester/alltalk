@@ -46,11 +46,11 @@ struct PopoverView: View {
                 Spacer()
 
                 Picker("", selection: $controller.outputMode) {
-                    Text("Paste").tag(OutputMode.paste)
+                    Text("Insert at Cursor").tag(OutputMode.paste)
                     Text("Popover").tag(OutputMode.popover)
                 }
                 .pickerStyle(.segmented)
-                .frame(width: 160)
+                .frame(width: 220)
             }
         }
         .padding(12)
