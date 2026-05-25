@@ -234,9 +234,7 @@ final class AllTalkController: ObservableObject {
         // For paste mode, paste each whitespace-delimited word as it lands so
         // dictation feels live.
         if outputMode == .paste {
-            while let spaceIdx = readBuffer.firstIndex(where: { $0.isWhitespace }) {
-                let word = String(readBuffer[..<readBuffer.index(after: spaceIdx)])
-                readBuffer.removeSubrange(..<readBuffer.index(after: spaceIdx))
+            for word in TranscriptStreaming.drainCompleteWords(from: &readBuffer) {
                 Clipboard.paste(word)
             }
         }
