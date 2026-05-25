@@ -11,9 +11,9 @@ struct SettingsView: View {
 
     var body: some View {
         TabView {
+            setupTab.tabItem { Label("Setup Sanity Check", systemImage: "checkmark.seal") }
             generalTab.tabItem { Label("General", systemImage: "gearshape") }
             advancedTab.tabItem { Label("Advanced", systemImage: "slider.horizontal.3") }
-            setupTab.tabItem { Label("Setup Sanity Check", systemImage: "checkmark.seal") }
             aboutTab.tabItem { Label("About", systemImage: "info.circle") }
         }
         .frame(width: 580, height: 480)
