@@ -16,11 +16,10 @@ struct PopoverView: View {
             Divider()
 
             ScrollView {
-                Text(controller.transcript.isEmpty
-                     ? "Press ⌃⌥Space (or use the menu) to start recording."
-                     : controller.transcript)
+                Text(popoverText)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .font(.system(.body, design: .monospaced))
+                    .foregroundColor(controller.transcript.isEmpty ? .secondary : .primary)
                     .textSelection(.enabled)
                     .padding(8)
             }
@@ -47,5 +46,20 @@ struct PopoverView: View {
         }
         .padding(12)
         .frame(width: 420, height: 320)
+    }
+
+    /// Contextual guidance so the user always knows what's happening.
+    private var popoverText: String {
+        if !controller.transcript.isEmpty { return controller.transcript }
+        if controller.isRecording {
+            return "Recording — speak now, then press ⌃⌥Space again to stop."
+        }
+        if controller.status != "Idle" { return controller.status }   // Starting model… / Transcribing…
+        switch controller.outputMode {
+        case .paste:
+            return "Press ⌃⌥Space to dictate.\n\nText is typed at your cursor — click into a text field first, or switch to “Popover” below to see it here."
+        case .popover:
+            return "Press ⌃⌥Space to dictate.\n\nThe transcript will appear here."
+        }
     }
 }

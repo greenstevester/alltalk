@@ -41,7 +41,12 @@ import UserNotifications
 
         // Refresh menu when state changes (recording started/stopped, etc.)
         controller.onStateChange = { [weak self] in
-            DispatchQueue.main.async { self?.rebuildMenu() }
+            DispatchQueue.main.async {
+                guard let self else { return }
+                self.rebuildMenu()
+                // Surface what's happening: open the transcript popover when recording begins.
+                if self.controller.isRecording { self.showPopover() }
+            }
         }
 
         // Ask for notification permission once.
@@ -91,7 +96,7 @@ import UserNotifications
         menu.addItem(NSMenuItem(title: serverTitle, action: #selector(toggleServer), keyEquivalent: ""))
         menu.addItem(NSMenuItem(title: "Settings…", action: #selector(openSettings), keyEquivalent: ","))
         menu.addItem(.separator())
-        menu.addItem(NSMenuItem(title: "Quit AllTalk", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
+        menu.addItem(NSMenuItem(title: "Quit AllTalk", action: #selector(quitApp), keyEquivalent: "q"))
 
         for item in menu.items { item.target = self }
         statusItem.menu = menu
@@ -104,6 +109,13 @@ import UserNotifications
     @objc private func toggleServer() { controller.toggleServer() }
     @objc private func setPasteMode() { controller.outputMode = .paste }
     @objc private func setNotifyMode() { controller.outputMode = .popover }
+    @objc private func quitApp() { NSApp.terminate(nil) }
+
+    private func showPopover() {
+        guard let button = statusItem.button, !popover.isShown else { return }
+        popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
+        popover.contentViewController?.view.window?.makeKey()
+    }
     @objc private func openSettings() {
         // Open our own AppKit-hosted window rather than the SwiftUI `Settings` scene:
         // the private `showSettingsWindow:` selector is unreliable for a menu-bar
