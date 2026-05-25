@@ -16,15 +16,10 @@ import UserNotifications
         // Status bar item.
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         if let button = statusItem.button {
-            // Use the app icon (the squircle) as the menu-bar glyph, sized for the bar.
-            let icon = NSApp.applicationIconImage.copy() as? NSImage
-            icon?.size = NSSize(width: 18, height: 18)
-            icon?.isTemplate = false   // a colour icon, not a monochrome template
-            icon?.accessibilityDescription = "AllTalk"
-            button.image = icon ?? NSImage(systemSymbolName: "waveform", accessibilityDescription: "AllTalk")
             button.action = #selector(togglePopover(_:))
             button.target = self
         }
+        updateStatusIcon()   // app icon when idle, red record glyph while recording
         rebuildMenu()
 
         // Popover for transcript display / settings access.
@@ -48,8 +43,15 @@ import UserNotifications
             DispatchQueue.main.async {
                 guard let self else { return }
                 self.rebuildMenu()
-                // Surface what's happening: open the transcript popover when recording begins.
-                if self.controller.isRecording { self.showPopover() }
+                self.updateStatusIcon()
+                // Surface recording visually. In "Insert at cursor" mode we must NOT show the
+                // popover — it steals focus from the app you're dictating into, so the
+                // synthesised ⌘V would land in AllTalk instead of your editor. The menu-bar
+                // icon turns red for feedback there. Popover mode doesn't paste, so it's free
+                // to take focus.
+                if self.controller.isRecording, self.controller.outputMode == .popover {
+                    self.showPopover()
+                }
             }
         }
 
@@ -121,6 +123,26 @@ import UserNotifications
         guard let button = statusItem.button, !popover.isShown else { return }
         popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
         popover.contentViewController?.view.window?.makeKey()
+    }
+
+    /// App icon when idle; a red record glyph while recording. This is focus-safe
+    /// feedback — unlike the popover, it never steals focus from the app you're
+    /// dictating into, so paste-at-cursor keeps working.
+    private func updateStatusIcon() {
+        guard let button = statusItem.button else { return }
+        if controller.isRecording {
+            let rec = NSImage(systemSymbolName: "record.circle.fill", accessibilityDescription: "Recording")
+            rec?.isTemplate = true
+            button.image = rec
+            button.contentTintColor = .systemRed
+        } else {
+            let icon = NSApp.applicationIconImage.copy() as? NSImage
+            icon?.size = NSSize(width: 18, height: 18)
+            icon?.isTemplate = false
+            icon?.accessibilityDescription = "AllTalk"
+            button.image = icon ?? NSImage(systemSymbolName: "waveform", accessibilityDescription: "AllTalk")
+            button.contentTintColor = nil
+        }
     }
 
     func menuWillOpen(_ menu: NSMenu) {
