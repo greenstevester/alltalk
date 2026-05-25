@@ -75,18 +75,8 @@ brew install --cask greenstevester/tap/alltalk
 ```
 
 or download `AllTalk.app` from the [latest release](https://github.com/greenstevester/alltalk/releases/latest),
-unzip it, and move it to `/Applications`.
-
-> **Not notarized yet.** This build isn't signed with an Apple Developer ID, so macOS
-> blocks it on first launch. Allow it once with:
->
-> ```sh
-> xattr -dr com.apple.quarantine "/Applications/AllTalk.app"
-> ```
->
-> or via System Settings → Privacy & Security → "Open Anyway". This applies to the Homebrew
-> install too — the app ends up at `/Applications/AllTalk.app` either way. A notarized build
-> is planned, which removes this step entirely.
+unzip it, and move it to `/Applications`. The app is signed and notarized, so it opens with
+a normal double-click — no Gatekeeper prompts.
 
 **Set up the model** — AllTalk drives a local `llama.cpp` server, which it starts and stops
 for you. Install the server and download the model once:
