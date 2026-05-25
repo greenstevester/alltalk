@@ -1,3 +1,4 @@
+import AppKit
 import SwiftUI
 
 struct SettingsView: View {
@@ -126,8 +127,8 @@ struct SettingsView: View {
             Section {
                 LabeledContent("Server URL") {
                     HStack(spacing: 6) {
-                        TextField("http://localhost:8899", text: $controller.serverURL)
-                            .textFieldStyle(.roundedBorder)
+                        PlainTextField(text: $controller.serverURL, placeholder: "http://localhost:8899")
+                            .frame(maxWidth: .infinity)
                         Button("Test") { testServer() }
                     }
                 }
@@ -269,5 +270,44 @@ struct SettingsView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .padding()
+    }
+}
+
+/// A plain editable text field whose contents are never rendered as a clickable
+/// link. SwiftUI's `TextField` on recent macOS auto-detects a typed URL and draws
+/// a blue "smart link" copy beside the editable text; a bare NSTextField doesn't.
+private struct PlainTextField: NSViewRepresentable {
+    @Binding var text: String
+    var placeholder: String
+
+    func makeNSView(context: Context) -> NSTextField {
+        let field = NSTextField()
+        field.stringValue = text
+        field.placeholderString = placeholder
+        field.bezelStyle = .roundedBezel
+        field.isBordered = true
+        field.isEditable = true
+        field.isSelectable = true
+        field.usesSingleLineMode = true
+        field.lineBreakMode = .byTruncatingHead
+        field.allowsEditingTextAttributes = false   // plain text only — no link styling
+        field.delegate = context.coordinator
+        field.setContentHuggingPriority(.defaultLow, for: .horizontal)   // fill width like a SwiftUI TextField
+        return field
+    }
+
+    func updateNSView(_ field: NSTextField, context: Context) {
+        if field.stringValue != text { field.stringValue = text }
+    }
+
+    func makeCoordinator() -> Coordinator { Coordinator(text: $text) }
+
+    final class Coordinator: NSObject, NSTextFieldDelegate {
+        private let text: Binding<String>
+        init(text: Binding<String>) { self.text = text }
+        func controlTextDidChange(_ note: Notification) {
+            guard let field = note.object as? NSTextField else { return }
+            text.wrappedValue = field.stringValue
+        }
     }
 }
