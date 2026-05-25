@@ -14,7 +14,7 @@ final class AllTalkController: ObservableObject {
     // MARK: - Published UI state
     @Published private(set) var isRecording = false
     @Published private(set) var isStreaming = false
-    @Published private(set) var transcript = ""
+    @Published var transcript = ""   // editable from the popover
     @Published private(set) var status = "Idle"
 
     // MARK: - User settings (mirrored to UserDefaults)
@@ -69,6 +69,13 @@ final class AllTalkController: ObservableObject {
     var serverIsActive: Bool { serverManager.state.isActive }
     func toggleServer() { serverManager.toggle() }
     func stopServer() { serverManager.stopIfOwned() }
+
+    /// Clear the popover transcript (and the live-paste buffer).
+    func clearTranscript() {
+        transcript = ""
+        readBuffer = ""
+        onStateChange?()
+    }
 
     // MARK: - Recording lifecycle
 

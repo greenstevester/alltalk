@@ -15,13 +15,19 @@ struct PopoverView: View {
 
             Divider()
 
-            ScrollView {
-                Text(popoverText)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+            // Editable + selectable transcript, with contextual help shown as a placeholder.
+            ZStack(alignment: .topLeading) {
+                TextEditor(text: $controller.transcript)
                     .font(.system(.body, design: .monospaced))
-                    .foregroundColor(controller.transcript.isEmpty ? .secondary : .primary)
-                    .textSelection(.enabled)
-                    .padding(8)
+                    .scrollContentBackground(.hidden)
+                    .padding(4)
+                if controller.transcript.isEmpty {
+                    Text(emptyHelp)
+                        .font(.system(.body, design: .monospaced))
+                        .foregroundColor(.secondary)
+                        .padding(8)
+                        .allowsHitTesting(false)   // clicks pass through to the editor
+                }
             }
             .frame(maxHeight: .infinity)
             .background(Color(NSColor.textBackgroundColor))
@@ -33,6 +39,9 @@ struct PopoverView: View {
                     NSPasteboard.general.setString(controller.transcript, forType: .string)
                 }
                 .disabled(controller.transcript.isEmpty)
+
+                Button("Clear") { controller.clearTranscript() }
+                    .disabled(controller.transcript.isEmpty)
 
                 Spacer()
 
@@ -48,18 +57,17 @@ struct PopoverView: View {
         .frame(width: 420, height: 320)
     }
 
-    /// Contextual guidance so the user always knows what's happening.
-    private var popoverText: String {
-        if !controller.transcript.isEmpty { return controller.transcript }
+    /// Placeholder guidance shown when the transcript is empty.
+    private var emptyHelp: String {
         if controller.isRecording {
             return "Recording — speak now, then press ⌃⌥Space again to stop."
         }
         if controller.status != "Idle" { return controller.status }   // Starting model… / Transcribing…
         switch controller.outputMode {
         case .paste:
-            return "Press ⌃⌥Space to dictate.\n\nText is typed at your cursor — click into a text field first, or switch to “Popover” below to see it here."
+            return "Press ⌃⌥Space to dictate.\n\nText is typed at your cursor — click into a text field first, or switch to “Popover” to keep it here. You can edit or Clear whatever lands below."
         case .popover:
-            return "Press ⌃⌥Space to dictate.\n\nThe transcript will appear here."
+            return "Press ⌃⌥Space to dictate.\n\nThe transcript appears here, where you can edit it, Copy it, or Clear it."
         }
     }
 }
