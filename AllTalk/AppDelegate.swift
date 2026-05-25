@@ -16,8 +16,12 @@ import UserNotifications
         // Status bar item.
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         if let button = statusItem.button {
-            button.image = NSImage(systemSymbolName: "waveform", accessibilityDescription: "AllTalk")
-            button.image?.isTemplate = true
+            // Use the app icon (the squircle) as the menu-bar glyph, sized for the bar.
+            let icon = NSApp.applicationIconImage.copy() as? NSImage
+            icon?.size = NSSize(width: 18, height: 18)
+            icon?.isTemplate = false   // a colour icon, not a monochrome template
+            icon?.accessibilityDescription = "AllTalk"
+            button.image = icon ?? NSImage(systemSymbolName: "waveform", accessibilityDescription: "AllTalk")
             button.action = #selector(togglePopover(_:))
             button.target = self
         }
