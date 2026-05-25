@@ -69,11 +69,12 @@ import UserNotifications
 
     private func rebuildMenu() {
         let menu = NSMenu()
+        menu.autoenablesItems = false   // we manage enabling; keeps the custom header view interactive
 
-        // Model-server status line (non-clickable; action == nil keeps it greyed).
-        let statusLine = NSMenuItem(title: controller.serverStatusLabel, action: nil, keyEquivalent: "")
-        statusLine.isEnabled = false
-        menu.addItem(statusLine)
+        // Tailscale-style header: app icon, name, server status, and an on/off switch.
+        let header = NSMenuItem()
+        header.view = makeServerHeader()
+        menu.addItem(header)
         menu.addItem(.separator())
 
         let recordingTitle = controller.isRecording ? "■ Stop Recording" : "● Start Recording  ⌃⌥Space"
@@ -92,8 +93,6 @@ import UserNotifications
 
         menu.addItem(.separator())
         menu.addItem(NSMenuItem(title: "Show Transcript…", action: #selector(togglePopover(_:)), keyEquivalent: ""))
-        let serverTitle = controller.serverIsActive ? "Stop Model Server" : "Start Model Server"
-        menu.addItem(NSMenuItem(title: serverTitle, action: #selector(toggleServer), keyEquivalent: ""))
         menu.addItem(NSMenuItem(title: "Settings…", action: #selector(openSettings), keyEquivalent: ","))
         menu.addItem(.separator())
         menu.addItem(NSMenuItem(title: "Quit AllTalk", action: #selector(quitApp), keyEquivalent: "q"))
@@ -115,6 +114,41 @@ import UserNotifications
         guard let button = statusItem.button, !popover.isShown else { return }
         popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
         popover.contentViewController?.view.window?.makeKey()
+    }
+
+    @objc private func serverSwitchToggled(_ sender: NSSwitch) {
+        controller.toggleServer()
+    }
+
+    /// Tailscale-style header row: app icon, "AllTalk", the server status, and an on/off switch.
+    private func makeServerHeader() -> NSView {
+        let width: CGFloat = 260, height: CGFloat = 52
+        let view = NSView(frame: NSRect(x: 0, y: 0, width: width, height: height))
+
+        let icon = NSImageView(frame: NSRect(x: 14, y: (height - 30) / 2, width: 30, height: 30))
+        icon.image = NSApp.applicationIconImage
+        icon.imageScaling = .scaleProportionallyUpOrDown
+        view.addSubview(icon)
+
+        let title = NSTextField(labelWithString: "AllTalk")
+        title.font = .systemFont(ofSize: 13, weight: .semibold)
+        title.frame = NSRect(x: 54, y: 27, width: 150, height: 18)
+        view.addSubview(title)
+
+        let subtitle = NSTextField(labelWithString: controller.serverSubtitle)
+        subtitle.font = .systemFont(ofSize: 11)
+        subtitle.textColor = .secondaryLabelColor
+        subtitle.lineBreakMode = .byTruncatingTail
+        subtitle.frame = NSRect(x: 54, y: 9, width: 150, height: 16)
+        view.addSubview(subtitle)
+
+        let toggle = NSSwitch(frame: NSRect(x: width - 58, y: (height - 22) / 2, width: 44, height: 22))
+        toggle.state = controller.serverIsActive ? .on : .off
+        toggle.target = self
+        toggle.action = #selector(serverSwitchToggled(_:))
+        view.addSubview(toggle)
+
+        return view
     }
     @objc private func openSettings() {
         // Open our own AppKit-hosted window rather than the SwiftUI `Settings` scene:
